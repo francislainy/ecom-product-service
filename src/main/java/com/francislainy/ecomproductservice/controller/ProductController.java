@@ -3,6 +3,7 @@ package com.francislainy.ecomproductservice.controller;
 import com.francislainy.ecomproductservice.model.Product;
 import com.francislainy.ecomproductservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,6 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.createProduct(product));
+        return new ResponseEntity<>(productService.createProduct(product), HttpStatus.CREATED);
     }
 }

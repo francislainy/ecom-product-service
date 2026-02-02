@@ -26,7 +26,7 @@ public class ProductControllerTest {
     @Test
     void shouldCreateProduct() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/products"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(productService, times(1)).createProduct(any());
     }
