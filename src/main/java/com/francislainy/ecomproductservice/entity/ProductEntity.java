@@ -1,27 +1,32 @@
-package com.francislainy.ecomproductservice.model;
+package com.francislainy.ecomproductservice.entity;
 
-import com.francislainy.ecomproductservice.entity.ProductEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import com.francislainy.ecomproductservice.model.Product;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Builder
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+@With
+@Entity
+@Table(name = "products")
+public class ProductEntity {
 
+    @Id
+    @GeneratedValue
     private UUID id;
     private String name;
     private String description;
     private BigDecimal price;
 
-    public ProductEntity toEntity() {
-        return ProductEntity.builder()
+    public Product toModel() {
+        return Product.builder()
                 .id(this.id)
                 .name(this.name)
                 .description(this.description)

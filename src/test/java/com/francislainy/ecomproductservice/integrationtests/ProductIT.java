@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
@@ -23,20 +25,21 @@ public class ProductIT {
     @Autowired
     MockMvc mockMvc;
 
+    String productJson = """
+            {
+                "name": "Test Product",
+                "price": 99.99,
+                "description": "Test Description"
+            }
+            """;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
     }
 
     @Test
     void shouldCreateProductWhenAdmin() {
-        String productJson = """
-                {
-                    "name": "Test Product",
-                    "price": 99.99
-                }
-                """;
-
         given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(productJson)
@@ -44,18 +47,16 @@ public class ProductIT {
                 .when()
                 .post("/api/v1/products")
                 .then()
-                .statusCode(201);
+                .statusCode(201)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("id", notNullValue(),
+                        "name", equalTo("Test Product"),
+                        "description", equalTo("Test Description"),
+                        "price", equalTo(99.99f));
     }
 
     @Test
     void shouldNotCreateProductWhenUser() {
-        String productJson = """
-                {
-                    "name": "Test Product",
-                    "price": 99.99
-                }
-                """;
-
         given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(productJson)
