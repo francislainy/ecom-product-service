@@ -1,6 +1,7 @@
 package com.francislainy.ecomproductservice.service.impl;
 
 import com.francislainy.ecomproductservice.entity.ProductEntity;
+import com.francislainy.ecomproductservice.mapper.ProductMapper;
 import com.francislainy.ecomproductservice.model.Product;
 import com.francislainy.ecomproductservice.repository.ProductRepository;
 import com.francislainy.ecomproductservice.service.ProductService;
@@ -12,12 +13,11 @@ import org.springframework.stereotype.Service;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     @Override
     public Product createProduct(Product product) {
-
-        ProductEntity productEntity = product.toEntity();
-        productEntity = productRepository.save(productEntity);
-        return productEntity.toModel();
+        ProductEntity productEntity = productRepository.save(productMapper.toEntity(product));
+        return productMapper.toModel(productEntity);
     }
 }

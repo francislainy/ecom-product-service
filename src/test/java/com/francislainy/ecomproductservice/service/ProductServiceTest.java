@@ -1,13 +1,16 @@
 package com.francislainy.ecomproductservice.service;
 
 import com.francislainy.ecomproductservice.entity.ProductEntity;
+import com.francislainy.ecomproductservice.mapper.ProductMapper;
 import com.francislainy.ecomproductservice.model.Product;
 import com.francislainy.ecomproductservice.repository.ProductRepository;
 import com.francislainy.ecomproductservice.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -25,6 +28,9 @@ public class ProductServiceTest {
     @Mock
     ProductRepository productRepository;
 
+    @Spy
+    ProductMapper productMapper = Mappers.getMapper(ProductMapper.class);
+
     @Test
     void shouldCreateProduct() {
         Product product = Product.builder()
@@ -33,11 +39,11 @@ public class ProductServiceTest {
                 .description("Test Description")
                 .build();
 
-        ProductEntity productEntity = product.toEntity().withId(UUID.randomUUID());
-
-        when(productRepository.save(any())).thenReturn(productEntity);
+        ProductEntity productEntity = productMapper.toEntity(product);
+        when(productRepository.save(any())).thenReturn(productEntity.withId(UUID.randomUUID()));
 
         Product result = productService.createProduct(product);
+
         assertAll(
                 () -> assertNotNull(result.getId()),
                 () -> assertEquals(product.getName(), result.getName()),

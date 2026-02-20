@@ -1,6 +1,5 @@
 package com.francislainy.ecomproductservice.model;
 
-import com.francislainy.ecomproductservice.entity.ProductEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,13 +18,4 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-
-    public ProductEntity toEntity() {
-        return ProductEntity.builder()
-                .id(this.id)
-                .name(this.name)
-                .description(this.description)
-                .price(this.price)
-                .build();
-    }
 }
