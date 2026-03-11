@@ -25,3 +25,11 @@ jobs:
 
       - name: Run unit tests
         run: ./mvnw test --fail-at-end -Dtest=*Test
+
+      - name: Upload JUnit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: target/surefire-reports/*.xml
+          if-no-files-found: ignore
