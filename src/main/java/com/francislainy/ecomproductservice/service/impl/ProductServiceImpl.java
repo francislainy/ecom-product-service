@@ -8,6 +8,8 @@ import com.francislainy.ecomproductservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -18,6 +20,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(Product product) {
         ProductEntity productEntity = productRepository.save(productMapper.toEntity(product));
+        return productMapper.toModel(productEntity);
+    }
+
+    @Override
+    public Product getProduct(UUID id) {
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
         return productMapper.toModel(productEntity);
     }
 }

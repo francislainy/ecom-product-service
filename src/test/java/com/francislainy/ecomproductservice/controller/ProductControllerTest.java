@@ -40,4 +40,15 @@ public class ProductControllerTest {
 
         verify(productService, times(1)).createProduct(any());
     }
+
+    @Test
+    void shouldGetProductById() throws Exception {
+        String productId = "123e4567-e89b-12d3-a456-426614174000";
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/{id}", productId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(productService, times(1)).getProduct(any());
+    }
 }
