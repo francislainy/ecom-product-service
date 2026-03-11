@@ -2,7 +2,7 @@ package com.francislainy.ecomproductservice.integrationtests;
 
 import com.francislainy.ecomproductservice.TestcontainersConfiguration;
 import com.francislainy.ecomproductservice.model.Product;
-import com.francislainy.ecomproductservice.service.impl.ProjectConfig;
+import com.francislainy.ecomproductservice.security.ProjectConfig;
 import com.francislainy.ecomproductservice.utils.TestUtils;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,6 +100,54 @@ public class ProductIT {
         ;
     }
 
+    @Test
+    void shouldGetProductAsAdmin() {
+        // First create a product to ensure it exists
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("user").roles("USER"))
+                .when()
+                .get("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .statusCode(200)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("id", equalTo(createdProduct.getId().toString()),
+                        "name", equalTo(createdProduct.getName()),
+                        "description", equalTo(createdProduct.getDescription()),
+                        "price", equalTo(createdProduct.getPrice().floatValue()));
+    }
+
+    @Test
+    void shouldGetProductAsUser() {
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("user").roles("USER"))
+                .when()
+                .get("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .statusCode(200)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("id", equalTo(createdProduct.getId().toString()),
+                        "name", equalTo(createdProduct.getName()),
+                        "description", equalTo(createdProduct.getDescription()),
+                        "price", equalTo(createdProduct.getPrice().floatValue()));
+    }
+
+    @Test
+    void shouldGetProductWhenUnauthenticated() {
+        Product createdProduct = getProduct();
+
+        given()
+                .when()
+                .get("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .statusCode(200);
+    }
+
+    /** Helpers */
+
     private static Stream<Arguments> invalidProducts() {
         return Stream.of(
                 Arguments.of(Product.builder().name(null).description("some description").price(new BigDecimal("10")).build(), "name is null"),
@@ -111,6 +159,22 @@ public class ProductIT {
                 Arguments.of(Product.builder().name("Valid Name").description("").price(new BigDecimal("10")).build(), "description is empty")
         );
     }
+
+    private Product getProduct() {
+        String response = given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(productJson)
+                .auth().with(user("admin").roles("ADMIN"))
+                .when()
+                .post("/api/v1/products")
+                .then()
+                .statusCode(201)
+                .extract().asString();
+
+        return (Product) TestUtils.fromJson(response, Product.class);
+    }
+
+
 
 
 }
