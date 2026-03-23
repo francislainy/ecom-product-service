@@ -80,12 +80,31 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenProductNotFound() {
+    void shouldThrowExceptionWhenProductNotFoundOnRetrieval() {
         UUID productId = UUID.randomUUID();
         when(productRepository.findById(productId)).thenReturn(java.util.Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> productService.getProduct(productId));
+        Exception exception = assertThrows(RuntimeException.class, () -> productService.getProduct(productId));
         assertEquals("Product not found", exception.getMessage());
         verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void shouldDeleteProduct() {
+        UUID productId = UUID.randomUUID();
+        when(productRepository.existsById(productId)).thenReturn(true);
+
+        assertDoesNotThrow(() -> productService.deleteProduct(productId));
+        verify(productRepository, times(1)).existsById(productId);
+        verify(productRepository, times(1)).deleteById(productId);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProductNotFoundOnDelete() {
+        UUID productId = UUID.randomUUID();
+
+        Exception exception = assertThrows(RuntimeException.class, () -> productService.deleteProduct(productId));
+        assertEquals("Product not found", exception.getMessage());
+        verify(productRepository, times(1)).existsById(productId);
     }
 }

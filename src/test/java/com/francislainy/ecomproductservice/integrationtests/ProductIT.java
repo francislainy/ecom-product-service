@@ -14,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.util.stream.Stream;
 
+import static com.francislainy.ecomproductservice.utils.TestUtils.toJson;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -55,7 +57,7 @@ public class ProductIT {
                 .when()
                 .post("/api/v1/products")
                 .then()
-                .statusCode(201)
+                .status(HttpStatus.UNAUTHORIZED)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", notNullValue(),
                         "name", equalTo("Test Product"),
@@ -72,7 +74,7 @@ public class ProductIT {
                 .when()
                 .post("/api/v1/products")
                 .then()
-                .statusCode(403);
+                .status(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -83,7 +85,7 @@ public class ProductIT {
                 .when()
                 .post("/api/v1/products")
                 .then()
-                .statusCode(401);
+                .status(HttpStatus.UNAUTHORIZED);
     }
 
     @ParameterizedTest(name = "should return 400 when {1}")
@@ -91,18 +93,17 @@ public class ProductIT {
     void shouldNotCrateProductWhenInvalidData(Product invalidProduct, String description) {
         given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(TestUtils.toJson(invalidProduct))
+                .body(toJson(invalidProduct))
                 .auth().with(user("admin").roles("ADMIN"))
                 .when()
                 .post("/api/v1/products")
                 .then()
-                .statusCode(400)
+                .status(HttpStatus.BAD_REQUEST)
         ;
     }
 
     @Test
     void shouldGetProductAsAdmin() {
-        // First create a product to ensure it exists
         Product createdProduct = getProduct();
 
         given()
@@ -110,7 +111,7 @@ public class ProductIT {
                 .when()
                 .get("/api/v1/products/{id}", createdProduct.getId())
                 .then()
-                .statusCode(200)
+                .status(HttpStatus.CREATED)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", equalTo(createdProduct.getId().toString()),
                         "name", equalTo(createdProduct.getName()),
@@ -127,7 +128,7 @@ public class ProductIT {
                 .when()
                 .get("/api/v1/products/{id}", createdProduct.getId())
                 .then()
-                .statusCode(200)
+                .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body("id", equalTo(createdProduct.getId().toString()),
                         "name", equalTo(createdProduct.getName()),
@@ -143,7 +144,42 @@ public class ProductIT {
                 .when()
                 .get("/api/v1/products/{id}", createdProduct.getId())
                 .then()
-                .statusCode(200);
+                .status(HttpStatus.OK);
+    }
+
+    @Test
+    void shouldDeleteProductWhenAdmin() {
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("admin").roles("ADMIN"))
+                .when()
+                .delete("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .status(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    void shouldNotDeleteProductWhenUser() {
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("user").roles("USER"))
+                .when()
+                .delete("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .status(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void shouldNotDeleteProductWhenNotAuthenticated() {
+        Product createdProduct = getProduct();
+
+        given()
+                .when()
+                .delete("/api/v1/products/{id}", createdProduct.getId())
+                .then()
+                .status(HttpStatus.UNAUTHORIZED);
     }
 
     /** Helpers */
@@ -173,8 +209,4 @@ public class ProductIT {
 
         return (Product) TestUtils.fromJson(response, Product.class);
     }
-
-
-
-
 }

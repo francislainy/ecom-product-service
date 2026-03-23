@@ -26,4 +26,10 @@ public class ProductController {
     public ResponseEntity<Product> getProduct(@PathVariable UUID id) {
         return new ResponseEntity<>(productService.getProduct(id), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+        productService.deleteProduct(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
