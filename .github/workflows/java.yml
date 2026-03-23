@@ -6,6 +6,10 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  checks: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,3 +29,19 @@ jobs:
 
       - name: Run unit tests
         run: ./mvnw test --fail-at-end -Dtest=*Test
+
+      - name: Publish JUnit test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: JUnit Test Results
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+
+      - name: Upload JUnit test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: target/surefire-reports/*.xml
+          if-no-files-found: ignore
