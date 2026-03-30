@@ -103,7 +103,7 @@ public class ProductIT {
     }
 
     @Test
-    void shouldGetProductAsAdmin() {
+    void shouldGetProductWhenAdmin() {
         Product createdProduct = getProduct();
 
         given()
@@ -120,7 +120,7 @@ public class ProductIT {
     }
 
     @Test
-    void shouldGetProductAsUser() {
+    void shouldGetProductWhenUser() {
         Product createdProduct = getProduct();
 
         given()
@@ -145,6 +145,56 @@ public class ProductIT {
                 .get("/api/v1/products/{id}", createdProduct.getId())
                 .then()
                 .status(HttpStatus.OK);
+    }
+
+    @Test
+    void shouldGetProductsWhenAdmin() {
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("admin").roles("ADMIN"))
+                .when()
+                .get("/api/v1/products/")
+                .then()
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("content[0].id", equalTo(createdProduct.getId().toString()),
+                        "content[0].name", equalTo(createdProduct.getName()),
+                        "content[0].description", equalTo(createdProduct.getDescription()),
+                        "content[0].price", equalTo(createdProduct.getPrice().floatValue()));
+    }
+
+    @Test
+    void shouldGetProductsWhenUser() {
+        Product createdProduct = getProduct();
+
+        given()
+                .auth().with(user("user").roles("USER"))
+                .when()
+                .get("/api/v1/products/")
+                .then()
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("content[0].id", equalTo(createdProduct.getId().toString()),
+                        "content[0].name", equalTo(createdProduct.getName()),
+                        "content[0].description", equalTo(createdProduct.getDescription()),
+                        "content[0].price", equalTo(createdProduct.getPrice().floatValue()));
+    }
+
+    @Test
+    void shouldGetProductsWhenUnauthenticated() {
+        Product createdProduct = getProduct();
+
+        given()
+                .when()
+                .get("/api/v1/products/")
+                .then()
+                .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body("content[0].id", equalTo(createdProduct.getId().toString()),
+                        "content[0].name", equalTo(createdProduct.getName()),
+                        "content[0].description", equalTo(createdProduct.getDescription()),
+                        "content[0].price", equalTo(createdProduct.getPrice().floatValue()));
     }
 
     @Test

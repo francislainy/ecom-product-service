@@ -2,8 +2,12 @@ package com.francislainy.ecomproductservice.controller;
 
 import com.francislainy.ecomproductservice.model.Product;
 import com.francislainy.ecomproductservice.service.ProductService;
+import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,11 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable UUID id) {
         return new ResponseEntity<>(productService.getProduct(id), HttpStatus.OK);
+    }
+
+    @GetMapping({"", "/"})
+    public Page<Product> getAllProducts(@PageableDefault(size=20) Pageable pageable) {
+        return productService.findAll(pageable);
     }
 
     @DeleteMapping("/{id}")

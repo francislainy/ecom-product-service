@@ -6,6 +6,8 @@ import com.francislainy.ecomproductservice.model.Product;
 import com.francislainy.ecomproductservice.repository.ProductRepository;
 import com.francislainy.ecomproductservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -35,5 +37,11 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Product not found");
         }
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<Product> findAll(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(productMapper::toModel);
     }
 }

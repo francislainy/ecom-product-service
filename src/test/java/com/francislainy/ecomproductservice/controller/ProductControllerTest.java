@@ -1,11 +1,10 @@
 package com.francislainy.ecomproductservice.controller;
 
-import com.francislainy.ecomproductservice.repository.ProductRepository;
 import com.francislainy.ecomproductservice.service.ProductService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,11 +46,23 @@ public class ProductControllerTest {
     @Test
     void shouldGetProductById() throws Exception {
         UUID productId = UUID.randomUUID();
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/{id}", productId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/{id}", productId))
                 .andExpect(status().isOk());
 
         verify(productService, times(1)).getProduct(any());
+    }
+
+    @Test
+    void shouldGetProducts() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/products/")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(productService, times(2)).findAll(any(Pageable.class));
     }
 
     @Test
