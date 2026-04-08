@@ -1,11 +1,11 @@
 package com.francislainy.ecomproductservice.controller;
 
 import com.francislainy.ecomproductservice.model.Product;
+import com.francislainy.ecomproductservice.model.PageResponse;
 import com.francislainy.ecomproductservice.service.ProductService;
 import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -32,8 +32,8 @@ public class ProductController {
     }
 
     @GetMapping({"", "/"})
-    public Page<Product> getAllProducts(@PageableDefault(size=20) Pageable pageable) {
-        return productService.findAll(pageable);
+    public PageResponse<Product> getAllProducts(@PageableDefault(size=20) Pageable pageable) {
+        return PageResponse.from(productService.findAll(pageable));
     }
 
     @DeleteMapping("/{id}")
